@@ -1,0 +1,10 @@
+{
+  "telescopes": {
+    "class1": { "lat": -22.95971365, "lon": -67.78728655, "alt": 5135.509, "focalplane_height": 4 },
+    "class2": { "lat": -22.95979071, "lon": -67.78720175, "alt": 5135.478, "focalplane_height": 4 },
+    "satp1": { "lat": -22.96007463, "lon": -67.78838458, "alt": 5136.403, "focalplane_height": 4 },
+    "satp2": { "lat": -22.96007304, "lon": -67.78816041, "alt": 5136.441, "focalplane_height": 4 },
+    "satp3": { "lat": -22.95995707, "lon": -67.78794703, "alt": 5136.409, "focalplane_height": 4 }
+  },
+  "landing_site": { "lat": -22.9596902581684, "lon": -67.78694687846027, "alt": 5135.0 }
+}
