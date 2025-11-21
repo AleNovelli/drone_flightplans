@@ -4,7 +4,8 @@ MAVLINK_COMMANDS = {
         "waypoint": {"cmd": 16, "altmode": 1, "frame": 3},
         "roi": {"cmd": 195, "altmode": 1, "frame": 3},
         "rth": {"cmd": 20, "altmode": 3, "frame": 2},
-        "speed": {"cmd": 178, "altmode": None, "frame": 2}
+        "speed": {"cmd": 178, "altmode": None, "frame": 2},
+        "delay": {"cmd": 19, "altmode": None, "frame":2 }
     }
 
 def header():
@@ -110,5 +111,24 @@ def roi(seq: int, lat: float, lon: float, alt: float, current: int = 0, autocont
         x=lat,
         y=lon,
         z=alt,
+        autocontinue=autocontinue
+    )
+
+
+def delay(seq: int, time_s: float, current: int = 0, autocontinue: int = 1) -> str:
+    """Create a speed change mission item."""
+    cmd_info = MAVLINK_COMMANDS["delay"]
+    return make_item(
+        seq=seq,
+        current=current,
+        frame=cmd_info["frame"],#unused
+        command=cmd_info["cmd"],
+        param1=time_s,
+        param2=0,
+        param3=0,
+        param4=0,
+        x=0,
+        y=0,
+        z=0,
         autocontinue=autocontinue
     )

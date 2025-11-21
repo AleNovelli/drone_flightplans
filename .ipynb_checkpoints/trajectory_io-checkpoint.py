@@ -11,7 +11,7 @@ import pandas as pd
 
 
 
-def export_mission_qgc(trajectory, move_speed, scan_speed, n_repeat, savepath=None, safety_waypoints=None, fence=False):
+def export_mission_qgc(trajectory, move_speed, scan_speed, n_repeat, savepath=None, safety_waypoints=None, fence=False, add_rth=False):
     
     waypoints=[]
     
@@ -75,7 +75,8 @@ def export_mission_qgc(trajectory, move_speed, scan_speed, n_repeat, savepath=No
             )
     
     #add return to launch
-    waypoints = qgc.append_rth(waypoints)
+    if add_rth:
+        waypoints = qgc.append_rth(waypoints)
     
     #set geofencing
     
@@ -162,8 +163,7 @@ def export_mission_litchi(trajectory, move_speed, scan_speed, n_repeat, savepath
             trajectory.poi.lat,
             trajectory.poi.lon,
             trajectory.poi.alt-trajectory.landing_site.alt,
-        ) )
-    
+        ) ) 
     
     if len(waypoints)>=100:
         raise RuntimeError("Litchi flightplans can't have more than 100 waypoints!")
@@ -177,7 +177,7 @@ def export_mission_litchi(trajectory, move_speed, scan_speed, n_repeat, savepath
     return df
     
     
-def export_mission_mp(trajectory, move_speed, scan_speed, n_repeat, savepath=None, safety_waypoints=None):
+def export_mission_mp(trajectory, move_speed, scan_speed, n_repeat, savepath=None, safety_waypoints=None,  add_rth=False):
     
     waypoints=""
     
@@ -261,8 +261,9 @@ def export_mission_mp(trajectory, move_speed, scan_speed, n_repeat, savepath=Non
         )
         seq+=1
     
-    waypoints+=mp.rth(seq)
-    seq+=1
+    if add_rth:
+        waypoints+=mp.rth(seq)
+        seq+=1
     
     if savepath:
         with open(savepath, 'w') as f:
