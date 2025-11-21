@@ -3,6 +3,7 @@ from data_containers import Site, ENU, Geodetic, DroneTrajectory
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
+from typing import List
 
 class TrajectoryPlanner:
     
@@ -149,7 +150,7 @@ class TrajectoryPlanner:
     def plot_trajectories(
             self,
             trajectories,
-            telescopes: list[str] = None,
+            telescopes: List[str] = None,
             title: str = "",
             boresight_table: bool=False,
         ):
