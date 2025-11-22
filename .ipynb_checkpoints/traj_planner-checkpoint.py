@@ -205,11 +205,14 @@ class TrajectoryPlanner:
                 # find boresight (boresight is the arccenter as seen by the telescope)
                 az0, el0, _ = self.compute_boresight(tel, drone_traj)
 
-                azel_summary.append([telescope_name, traj_name, f"{az0:.2f}", f"{el0:.2f}"])
+                if drone_traj.plot_boresight:
+                    azel_summary.append([telescope_name, traj_name, f"{az0:.2f}", f"{el0:.2f}"])
 
                 # plot
-                ax1.plot(az, el, linestyle = "-", marker=markers[j%len(markers)], color=f"C{i}", label=f"{traj_name} – {telescope_name}")
-                ax1.scatter(az0, el0, marker="x", color="black")
+                #ax1.plot(az, el, linestyle = "-", marker=markers[j%len(markers)], color=f"C{i}", label=f"{traj_name} – {telescope_name}")
+                ax1.plot(az, el, linestyle = "-", color=f"C{i}", label=f"{traj_name} – {telescope_name}")
+                if drone_traj.plot_boresight:
+                    ax1.scatter(az0, el0, marker="x", color="black")
 
         ax1.grid()
         ax1.set_title(title)
@@ -218,7 +221,7 @@ class TrajectoryPlanner:
 
 
         # Table
-        if boresight_table:
+        if boresight_table and len(azel_summary)>0:
             columns = ["Telescope", "Trajectory", "boresight_az [°]", "boresight_el [°]"]
             azel_summary = sorted(azel_summary, key=lambda row: row[0])
             table = ax2.table(cellText=azel_summary, colLabels=columns, loc='upper center')

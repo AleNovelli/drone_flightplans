@@ -42,6 +42,7 @@ class DroneTrajectory:
     poi: Optional[Geodetic] = None
     landing_site: Optional[Geodetic]=None
     curveradius: Optional[float]=None
+    plot_boresight: Optional[bool]=False
     
     @property
     def E(self):
