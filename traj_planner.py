@@ -153,6 +153,7 @@ class TrajectoryPlanner:
             telescopes: List[str] = None,
             title: str = "",
             boresight_table: bool=False,
+            save_path=None,
         ):
         """
         Plot one or multiple drone trajectories as seen by telescopes.
@@ -232,4 +233,6 @@ class TrajectoryPlanner:
             ax2.set_title("Boresight pointing", fontsize=12)
 
         plt.tight_layout()
+        if save_path:
+            plt.savefig(save_path)
         plt.show()
