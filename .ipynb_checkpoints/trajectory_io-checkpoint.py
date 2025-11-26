@@ -270,3 +270,105 @@ def export_mission_mp(trajectory, move_speed, scan_speed, n_repeat, savepath=Non
             f.write(waypoints)
         
     return waypoints
+
+def export_test_mission_mp_switching_pois(landing_site, poi1, poi2, savepath = None, n_repeat=3):
+    waypoints=""
+    
+    waypoints+=mp.header()
+    seq=0
+    
+    # set home position (will be overwritten at take-off)
+    waypoints+=mp.waypoint(
+        seq,
+        landing_site.lat,
+        landing_site.lon,
+        landing_site.alt,
+        frame=0,
+        current=0,
+    )
+    seq+=1
+
+    #set the speed
+    waypoints+=mp.speed(
+        seq=seq,
+        speed_value=1,
+    )
+    seq+=1
+
+    #go 10 meters above the landing site
+    waypoints+=mp.waypoint(
+        seq,
+        landing_site.lat,
+        landing_site.lon,
+        10,
+    )
+    seq+=1
+
+    #wait 10 seconds
+    waypoints+=mp.delay(
+        seq,
+        time_s=10
+    )
+    seq+=1
+
+    #set the poi on the ground
+    waypoints+=mp.roi(
+        seq=seq,
+        lat=landing_site.lat,
+        lon=landing_site.lon,
+        alt=0
+    )
+    seq+=1
+
+    #wait 10 seconds
+    waypoints+=mp.delay(
+        seq,
+        time_s=10
+    )
+    seq+=1
+
+    for i in range(n_repeat):
+        #set the poi on poi1
+        waypoints+=mp.roi(
+            seq=seq,
+            lat=poi1.lat,
+            lon=poi1.lon,
+            alt=poi1.alt-landing_site.alt
+        )
+        seq+=1
+    
+        #wait 10 seconds
+        waypoints+=mp.delay(
+            seq,
+            time_s=10
+        )
+        seq+=1
+    
+        #set the poi on poi2
+        waypoints+=mp.roi(
+            seq=seq,
+            lat=poi1.lat,
+            lon=poi1.lon,
+            alt=poi1.alt-landing_site.alt
+        )
+        seq+=1
+    
+        #wait 10 seconds
+        waypoints+=mp.delay(
+            seq,
+            time_s=10
+        )
+        seq+=1
+
+    #return to home
+    waypoints+=mp.rth(seq)
+    seq+=1
+    
+    if savepath:
+        with open(savepath, 'w') as f:
+            f.write(waypoints)
+        
+    return waypoints
+    
+
+    
