@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="157">
+        <Style id="160">
+            <LineStyle id="161">
+                <colorMode>normal</colorMode>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+        <Style id="164">
+            <LabelStyle id="165">
+                <colorMode>normal</colorMode>
+                <scale>0.6</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="168">
+            <LabelStyle id="169">
+                <colorMode>normal</colorMode>
+                <scale>0.6</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="172">
+            <LabelStyle id="173">
+                <colorMode>normal</colorMode>
+                <scale>0.6</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="176">
+            <LabelStyle id="177">
+                <colorMode>normal</colorMode>
+                <scale>0.6</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="180">
+            <LabelStyle id="181">
+                <colorMode>normal</colorMode>
+                <scale>0.6</scale>
+            </LabelStyle>
+        </Style>
+        <Placemark id="159">
+            <name>Drone Trajectory</name>
+            <styleUrl>#160</styleUrl>
+            <LineString id="158">
+                <extrude>1</extrude>
+                <altitudeMode>absolute</altitudeMode>
+                <coordinates>-67.78441919275275,-22.95986056566,5488.756982915493 -67.78456482664637,-22.95986056884689,5504.645518195807 -67.78471707334982,-22.959860572022126,5519.8669445232335 -67.78487564305527,-22.959860575161084,5534.392291917962 -67.78504023392709,-22.959860578239244,5548.193915396852</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="163">
+            <name>Point 0</name>
+            <styleUrl>#164</styleUrl>
+            <Point id="162">
+                <coordinates>-67.78441919275275,-22.95986056566,5488.756982915493</coordinates>
+                <altitudeMode>absolute</altitudeMode>
+            </Point>
+        </Placemark>
+        <Placemark id="167">
+            <name>Point 1</name>
+            <styleUrl>#168</styleUrl>
+            <Point id="166">
+                <coordinates>-67.78456482664637,-22.95986056884689,5504.645518195807</coordinates>
+                <altitudeMode>absolute</altitudeMode>
+            </Point>
+        </Placemark>
+        <Placemark id="171">
+            <name>Point 2</name>
+            <styleUrl>#172</styleUrl>
+            <Point id="170">
+                <coordinates>-67.78471707334982,-22.959860572022126,5519.8669445232335</coordinates>
+                <altitudeMode>absolute</altitudeMode>
+            </Point>
+        </Placemark>
+        <Placemark id="175">
+            <name>Point 3</name>
+            <styleUrl>#176</styleUrl>
+            <Point id="174">
+                <coordinates>-67.78487564305527,-22.959860575161084,5534.392291917962</coordinates>
+                <altitudeMode>absolute</altitudeMode>
+            </Point>
+        </Placemark>
+        <Placemark id="179">
+            <name>Point 4</name>
+            <styleUrl>#180</styleUrl>
+            <Point id="178">
+                <coordinates>-67.78504023392709,-22.959860578239244,5548.193915396852</coordinates>
+                <altitudeMode>absolute</altitudeMode>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

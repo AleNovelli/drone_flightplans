@@ -10,6 +10,8 @@ class Geodetic:
     lat: float
     lon: float
     alt: float
+    def as_array(self):
+        return np.array([self.e, self.n, self.u])
     
 @dataclass
 class ECEF:
@@ -22,6 +24,18 @@ class ENU:
     e: float
     n: float
     u: float
+    def __sub__(self, other: "ENU") -> "ENU":
+        if not isinstance(other, ENU):
+            return NotImplemented
+        return ENU(self.e - other.e, self.n - other.n, self.u - other.u)
+
+    def __add__(self, other: "ENU") -> "ENU":
+        if not isinstance(other, ENU):
+            return NotImplemented
+        return ENU(self.e + other.e, self.n + other.n, self.u + other.u)
+
+    def as_array(self):
+        return np.array([self.e, self.n, self.u])
 
 @dataclass
 class Telescope:
@@ -92,6 +106,46 @@ class DroneTrajectory:
 
         # store vectorized array
         self.geodetic = np.column_stack([lats, lons, alts])
+        
+    def export_kml(self, path: str):
+        """
+        Export the trajectory to a KML file using simplekml.
+        Requires that compute_geodetic() has been called first.
+        """
+        try:
+            import simplekml
+        except ImportError:
+            raise ImportError("simplekml is not installed. Install it with: pip install simplekml")
+    
+        if self.geodetic is None:
+            raise ValueError("Geodetic coordinates not computed. Call compute_geodetic(site) first.")
+    
+        kml = simplekml.Kml()
+    
+        # ---- Add the trajectory path ----
+        coords = [(lon, lat, alt) for lat, lon, alt in self.geodetic]
+    
+        lin = kml.newlinestring(
+            name="Drone Trajectory",
+            coords=coords,
+        )
+        #lin.altitudemode = simplekml.AltitudeMode.absolute
+        #lin.extrude = 1
+        lin.style.linestyle.width = 3
+
+        """
+        # ---- Add point markers (optional) ----
+        for i, (lat, lon, alt) in enumerate(self.geodetic):
+            pnt = kml.newpoint(
+                name=f"Point {i}",
+                coords=[(lon, lat, alt)]
+            )
+            pnt.altitudemode = simplekml.AltitudeMode.absolute
+            pnt.style.labelstyle.scale = 0.6
+        """
+    
+        # ---- Save file ----
+        kml.save(path)
     
 
 class Site:
@@ -175,38 +229,166 @@ class Site:
 
         return Geodetic(lat=lat, lon=lon, alt=alt)
         
-        
-    def geodetic_to_enu(self, geo: Geodetic) -> ENU:
-        """
-        Convert a Geodetic position to ENU coordinates relative to the site origin.
-        """
+    def geodetic_to_enu(self, geo):
+    
         if self.origin is None:
             raise ValueError("Origin must be set before converting to ENU.")
+    
+        # ---------------------------------------------------------
+        # Case 1: single object
+        # ---------------------------------------------------------
+        if isinstance(geo, Geodetic):
+            e, n, u = pm.geodetic2enu(
+                lat=geo.lat,
+                lon=geo.lon,
+                h=geo.alt,
+                lat0=self.origin.lat,
+                lon0=self.origin.lon,
+                h0=self.origin.alt
+            )
+            return ENU(e=e, n=n, u=u)
+    
+        # ---------------------------------------------------------
+        # Case 2: array of shape (N,3)
+        # ---------------------------------------------------------
+        if isinstance(geo, np.ndarray):
+            if geo.ndim != 2 or geo.shape[1] != 3:
+                raise ValueError("NumPy input must have shape (N,3) as (lat, lon, alt).")
+    
+            lat = geo[:, 0]
+            lon = geo[:, 1]
+            alt = geo[:, 2]
+    
+            e, n, u = pm.geodetic2enu(
+                lat=lat,
+                lon=lon,
+                h=alt,
+                lat0=self.origin.lat,
+                lon0=self.origin.lon,
+                h0=self.origin.alt
+            )
+            return np.column_stack([e, n, u])
+    
+        raise TypeError("Input must be a Geodetic object or a NumPy array of shape (N,3).")
 
-        e, n, u = pm.geodetic2enu(
-            lat=geo.lat,
-            lon=geo.lon,
-            h=geo.alt,
-            lat0=self.origin.lat,
-            lon0=self.origin.lon,
-            h0=self.origin.alt
-        )
-        return ENU(e=e, n=n, u=u)
-
-    def enu_to_geodetic(self, enu: ENU) -> Geodetic:
+    def enu_to_geodetic(self, enu):
         """
-        Convert ENU coordinates relative to the site origin back to Geodetic.
+        Convert a single ENU position or an array of ENU points
+        back to Geodetic coordinates.
+    
+        Parameters
+        ----------
+        enu : ENU | np.ndarray
+            - ENU(e, n, u)
+            - OR NumPy array of shape (N,3)
+    
+        Returns
+        -------
+        Geodetic | np.ndarray
+            - Geodetic(lat, lon, alt) for single input
+            - np.ndarray of shape (N,3) for batch input
         """
         if self.origin is None:
             raise ValueError("Origin must be set before converting to Geodetic.")
+    
+        # ---------------------------------------------------------
+        # Case 1: single ENU object
+        # ---------------------------------------------------------
+        if isinstance(enu, ENU):
+            lat, lon, alt = pm.enu2geodetic(
+                e=enu.e,
+                n=enu.n,
+                u=enu.u,
+                lat0=self.origin.lat,
+                lon0=self.origin.lon,
+                h0=self.origin.alt
+            )
+            return Geodetic(lat=lat, lon=lon, alt=alt)
+    
+        # ---------------------------------------------------------
+        # Case 2: array of shape (N,3)
+        # ---------------------------------------------------------
+        if isinstance(enu, np.ndarray):
+            if enu.ndim != 2 or enu.shape[1] != 3:
+                raise ValueError("NumPy input must have shape (N,3) as (e, n, u).")
+    
+            e = enu[:, 0]
+            n = enu[:, 1]
+            u = enu[:, 2]
+    
+            lat, lon, alt = pm.enu2geodetic(
+                e=e,
+                n=n,
+                u=u,
+                lat0=self.origin.lat,
+                lon0=self.origin.lon,
+                h0=self.origin.alt
+            )
+            return np.column_stack([lat, lon, alt])
+    
+        raise TypeError("Input must be an ENU object or a NumPy array of shape (N,3).")
 
-        lat, lon, alt = pm.enu2geodetic(
-            e=enu.e,
-            n=enu.n,
-            u=enu.u,
-            lat0=self.origin.lat,
-            lon0=self.origin.lon,
-            h0=self.origin.alt
+
+    def observe_points(self,
+                   points_geodetic,
+                   telescope: Union[str, Telescope, Geodetic, ENU]) -> np.ndarray:
+        """
+        Compute (az, el, srange) under which a telescope observes a sequence of points.
+        
+        Parameters
+        ----------
+        points : list or np.ndarray
+            Either a list/array of Geodetic or ENU objects, OR a NumPy array
+            of shape (N,3) interpreted as (lat,lon,alt) or (e,n,u).
+        telescope : str | Telescope | Geodetic | ENU
+            Telescope selector. Can be:
+            - telescope name (string),
+            - a Telescope object,
+            - a Geodetic position,
+            - an ENU position.
+    
+        Returns
+        -------
+        np.ndarray
+            Array of shape (N,3): (azimuth_deg, elevation_deg, slant_range_m)
+        """
+        # -----------------------------
+        # Resolve telescope position
+        # -----------------------------
+        if isinstance(telescope, str):
+            if telescope not in self.telescopes:
+                raise ValueError(f"Telescope '{telescope}' not found.")
+            tel_enu = self.telescopes[telescope].enu
+            if tel_enu is None:
+                raise ValueError("Telescope ENU positions are not computed. Call site.set_origin().")
+    
+        elif isinstance(telescope, Telescope):
+            if telescope.enu is None:
+                raise ValueError("Telescope ENU not defined. Call site.set_origin().")
+            tel_enu = telescope.enu
+    
+        elif isinstance(telescope, ENU):
+            tel_enu = telescope
+    
+        elif isinstance(telescope, Geodetic):
+            tel_enu = self.geodetic_to_enu(telescope)
+    
+        else:
+            raise TypeError("Invalid type for telescope specification.")
+    
+        tel_pos = np.array([tel_enu.e, tel_enu.n, tel_enu.u])
+    
+    
+        points_enu = self.geodetic_to_enu(points_geodetic)
+    
+        dENU = points_enu - tel_pos
+    
+        az, el, srange = pm.enu2aer(
+            e=dENU[:, 0],
+            n=dENU[:, 1],
+            u=dENU[:, 2],
         )
-        return Geodetic(lat=lat, lon=lon, alt=alt)
+    
+        return np.column_stack([az, el, srange])
+    
     

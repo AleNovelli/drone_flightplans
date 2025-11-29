@@ -116,7 +116,7 @@ def export_mission_qgc(trajectory, move_speed, scan_speed, n_repeat, savepath=No
     return mission_plan
 
 
-def export_mission_litchi(trajectory, move_speed, scan_speed, n_repeat, savepath=None, safety_waypoints=None):
+def export_mission_litchi(trajectory, move_speed, scan_speed, n_repeat, savepath=None, safety_waypoints=None, yaw_correction=0):
     
     columns = ["latitude", "longitude", "altitude(m)", "heading(deg)", "curvesize(m)", "rotationdir", "gimbalmode", "gimbalpitchangle", "actiontype1", "actionparam1", "altitudemode", "speed(m/s)", "poi_latitude", "poi_longitude", "poi_altitude(m)", "poi_altitudemode"]
 
@@ -156,7 +156,7 @@ def export_mission_litchi(trajectory, move_speed, scan_speed, n_repeat, savepath
             drone_traj[i][0],
             drone_traj[i][1],
             drone_traj[i][2]-trajectory.landing_site.alt,
-            drone_traj[i][3],
+            drone_traj[i][3]+yaw_correction,
             trajectory.curveradius,
             drone_traj[i][4],
             scan_speed,
