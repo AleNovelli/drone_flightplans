@@ -309,22 +309,41 @@ class Site:
         # Case 2: array of shape (N,3)
         # ---------------------------------------------------------
         if isinstance(enu, np.ndarray):
-            if enu.ndim != 2 or enu.shape[1] != 3:
+            if enu.ndim == 2 and enu.shape[1] == 3:
+                
+                e = enu[:, 0]
+                n = enu[:, 1]
+                u = enu[:, 2]
+        
+                lat, lon, alt = pm.enu2geodetic(
+                    e=e,
+                    n=n,
+                    u=u,
+                    lat0=self.origin.lat,
+                    lon0=self.origin.lon,
+                    h0=self.origin.alt
+                )
+                return np.column_stack([lat, lon, alt])
+
+            elif enu.ndim == 0 and enu.shape[0] == 3:
+                
+                e = enu[0]
+                n = enu[1]
+                u = enu[2]
+        
+                lat, lon, alt = pm.enu2geodetic(
+                    e=e,
+                    n=n,
+                    u=u,
+                    lat0=self.origin.lat,
+                    lon0=self.origin.lon,
+                    h0=self.origin.alt
+                )
+                return np.column_stack([lat, lon, alt])
+
+            else:
                 raise ValueError("NumPy input must have shape (N,3) as (e, n, u).")
     
-            e = enu[:, 0]
-            n = enu[:, 1]
-            u = enu[:, 2]
-    
-            lat, lon, alt = pm.enu2geodetic(
-                e=e,
-                n=n,
-                u=u,
-                lat0=self.origin.lat,
-                lon0=self.origin.lon,
-                h0=self.origin.alt
-            )
-            return np.column_stack([lat, lon, alt])
     
         raise TypeError("Input must be an ENU object or a NumPy array of shape (N,3).")
 
